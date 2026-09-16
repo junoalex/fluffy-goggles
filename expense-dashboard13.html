@@ -62,16 +62,16 @@
 <body class="bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50 min-h-screen text-slate-800">
 
   <header class="sticky top-0 z-30 glass border-b border-slate-200/60">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
           <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <div class="min-w-0">
-          <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">Expense Dashboard</h1>
+        <div>
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight">Expense Dashboard</h1>
         </div>
       </div>
-      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <div class="flex items-center gap-2 sm:gap-3">
         <div id="connectionStatus" class="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs sm:text-sm font-medium max-w-[11rem] sm:max-w-none truncate">
           <span class="status-dot offline" id="statusDot"></span>
           <span id="statusText" class="truncate">Connecting…</span>
@@ -89,6 +89,1168 @@
     </div>
   </header>
 
-  <!-- The rest of the full file content is required here. Because of length limits in this interaction, the complete 59kB file cannot be safely embedded without risk of truncation. -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <section class="grid grid-cols-1 gap-4">
+      <div class="bg-white rounded-2xl p-5 card-shadow border border-slate-100">
+        <div class="flex items-stretch justify-between gap-4">
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-slate-500">Current Month</p>
+            <p id="statThisMonth" class="mt-1 text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">$0.00</p>
+            <p id="statMonthFood" class="text-xs text-slate-400 mt-1">Food $0.00</p>
+          </div>
+          <div class="flex flex-col items-end justify-center text-right gap-1 shrink-0 pl-3 border-l border-slate-100">
+            <p id="statMonthLabel" class="text-sm font-semibold text-slate-700">—</p>
+            <p id="statThisMonthChange" class="text-xs font-medium text-slate-400">vs last month</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-1 bg-white rounded-2xl p-4 sm:p-6 card-shadow border border-slate-100">
+        <div class="flex items-center justify-between gap-2">
+          <button type="button" id="btnToggleForm" class="flex-1 flex items-center justify-between text-left lg:pointer-events-none">
+            <h2 id="formTitle" class="text-lg font-semibold text-slate-900">Add Expense</h2>
+            <svg id="formChevron" class="w-5 h-5 text-slate-400 lg:hidden transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <button id="btnCancelEdit" class="hidden text-sm text-slate-500 hover:text-slate-700 px-2 py-1 rounded-lg hover:bg-slate-100">Cancel</button>
+        </div>
+        <form id="expenseForm" class="space-y-4 mt-5 hidden lg:block">
+          <input type="hidden" id="editId" value="" />
+          <input type="hidden" id="editSource" value="" />
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Amount</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+              <input type="number" id="amount" step="0.01" min="0.01" required placeholder="0.00" class="w-full pl-8 pr-4 py-2.5 rounded-xl border border-slate-200 input-focus bg-slate-50/50" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Description / Merchant</label>
+            <input type="text" id="merchant" required placeholder="e.g. Shell, Restaurant" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 input-focus bg-slate-50/50" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Category</label>
+            <select id="category" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 input-focus bg-slate-50/50 appearance-none">
+              <option value="">Select category</option>
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Health">Health</option>
+              <option value="Travel">Travel</option>
+              <option value="Subscriptions">Subscriptions</option>
+              <option value="Alex's expense">Alex's expense</option>
+              <option value="Juno's expense">Juno's expense</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Date</label>
+            <input type="date" id="date" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 input-focus bg-slate-50/50 text-left date-input" />
+          </div>
+          <button type="submit" id="btnSubmit" class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-500 to-indigo-600 text-white font-semibold shadow-lg shadow-brand-500/25 hover:from-brand-600 hover:to-indigo-700 transition-all disabled:opacity-60">Add Expense</button>
+        </form>
+      </div>
+
+      <div class="lg:col-span-2 bg-white rounded-2xl card-shadow border border-slate-100 overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-lg font-semibold text-slate-900">Recent Expenses</h2>
+          <div class="flex flex-wrap items-center gap-2">
+            <input type="search" id="filterSearch" placeholder="Search description…" class="text-sm px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 input-focus w-40" />
+            <select id="filterCategory" class="text-sm px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 input-focus">
+              <option value="">All categories</option>
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Health">Health</option>
+              <option value="Travel">Travel</option>
+              <option value="Subscriptions">Subscriptions</option>
+              <option value="Alex's expense">Alex's expense</option>
+              <option value="Juno's expense">Juno's expense</option>
+              <option value="Other">Other</option>
+            </select>
+            <select id="filterMonth" class="text-sm px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 input-focus">
+              <option value="">All months</option>
+            </select>
+            <select id="sortBy" class="text-sm px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 input-focus">
+              <option value="date-desc">Date ↓</option>
+              <option value="date-asc">Date ↑</option>
+              <option value="amount-desc">Amount ↓</option>
+              <option value="amount-asc">Amount ↑</option>
+            </select>
+            <button id="btnClearFilters" class="text-sm text-slate-500 hover:text-brand-600 px-2 py-1.5 rounded-lg hover:bg-brand-50">Reset</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto flex-1">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-slate-50/80 text-left text-slate-500 font-medium">
+                <th class="px-5 py-3">Date</th>
+                <th class="px-5 py-3">Description</th>
+                <th class="px-5 py-3">Category</th>
+                <th class="px-5 py-3 text-right">Amount</th>
+                <th class="px-5 py-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="expenseTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+          <div id="emptyState" class="hidden py-16 text-center">
+            <p class="text-slate-500 font-medium">No expenses yet</p>
+            <p class="text-sm text-slate-400 mt-1">Add an expense or check your connection</p>
+          </div>
+          <div id="loadingState" class="py-16 text-center">
+            <div class="inline-block w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-slate-500 mt-3 text-sm">Loading…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl p-4 sm:p-6 card-shadow border border-slate-100 overflow-hidden">
+      <div class="flex flex-col gap-4 mb-6">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-900">Month-over-Month by Category</h2>
+          <p class="text-sm text-slate-500 mt-0.5">Compare spending across months</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full min-w-0">
+          <div class="flex flex-col gap-1 min-w-0">
+            <label class="text-xs font-medium text-slate-500">Month A</label>
+            <input type="month" id="momMonthA" class="w-full min-w-0 text-sm px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 input-focus date-input" />
+          </div>
+          <div class="flex flex-col gap-1 min-w-0">
+            <label class="text-xs font-medium text-slate-500">Month B</label>
+            <input type="month" id="momMonthB" class="w-full min-w-0 text-sm px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 input-focus date-input" />
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="h-72"><canvas id="momBarChart"></canvas></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-slate-500 font-medium border-b border-slate-100">
+                <th class="pb-3 pr-4">Category</th>
+                <th class="pb-3 pr-4 text-right" id="momLabelA">Month A</th>
+                <th class="pb-3 pr-4 text-right" id="momLabelB">Month B</th>
+                <th class="pb-3 text-right">Change</th>
+              </tr>
+            </thead>
+            <tbody id="momTableBody" class="divide-y divide-slate-50"></tbody>
+          </table>
+          <div id="momEmpty" class="hidden py-10 text-center text-slate-400 text-sm">Select two months or add expenses</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-100">
+        <h2 class="text-lg font-semibold text-slate-900 mb-1">Spending by Category</h2>
+        <p class="text-sm text-slate-500 mb-5">All-time distribution</p>
+        <div class="h-64 flex items-center justify-center"><canvas id="categoryPieChart"></canvas></div>
+      </div>
+      <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-100">
+        <h2 class="text-lg font-semibold text-slate-900 mb-1">Monthly Trend</h2>
+        <p class="text-sm text-slate-500 mb-5">Last 6 months</p>
+        <div class="h-64"><canvas id="trendLineChart"></canvas></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Config Modal -->
+  <div id="configModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 fade-in max-h-[90vh] overflow-y-auto">
+      <h3 class="text-lg font-semibold text-slate-900 mb-1">Firebase Configuration</h3>
+      <p class="text-sm text-slate-500 mb-5">Connects to <code class="text-xs bg-slate-100 px-1 rounded">ledger/expenses:YYYY-MM</code> (and their entries)</p>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">apiKey</label>
+          <input type="text" id="cfgApiKey" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm input-focus" placeholder="AIza..." />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">authDomain</label>
+          <input type="text" id="cfgAuthDomain" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm input-focus" placeholder="your-project.firebaseapp.com" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">projectId</label>
+          <input type="text" id="cfgProjectId" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm input-focus" placeholder="your-project-id" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">storageBucket (optional)</label>
+          <input type="text" id="cfgStorageBucket" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm input-focus" />
+        </div>
+      </div>
+      <p class="text-xs text-slate-400 mt-4">
+        Reads both subcollection entries and legacy <code>value</code> JSON arrays.<br>
+        New expenses are written to the current month’s <code>entries</code> subcollection.
+      </p>
+      <div class="mt-6 flex gap-3 justify-end">
+        <button id="btnCancelConfig" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium">Cancel</button>
+        <button id="btnSaveConfig" class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-medium">Save & Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 fade-in">
+      <h3 class="text-lg font-semibold text-slate-900">Delete expense?</h3>
+      <p class="text-sm text-slate-500 mt-2" id="deleteHint">This removes it from Firestore.</p>
+      <div class="mt-6 flex gap-3 justify-end">
+        <button id="btnCancelDelete" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium">Cancel</button>
+        <button id="btnConfirmDelete" class="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-medium">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG_KEY = 'expense_firebase_config_v3';
+    const EXPENSES_CACHE_KEY = 'expense_dashboard_cache_v1';
+
+    // Hardcoded Firebase config — connects automatically on every load
+    const HARDCODED_CONFIG = {
+      apiKey: 'AIzaSyCkZ7bPAoQ1p2RXDWGFsYrgSzhn5SQ7GIw',
+      authDomain: 'expense-ledger-318a8.firebaseapp.com',
+      projectId: 'expense-ledger-318a8',
+      storageBucket: 'expense-ledger-318a8.firebasestorage.app',
+      messagingSenderId: '427060182685',
+      appId: '1:427060182685:web:8a64da52ea11913d355e74',
+      measurementId: 'G-51PE6VVSX8'
+    };
+
+    let firebaseConfig = HARDCODED_CONFIG, db = null, auth = null;
+    let expenses = [], deleteTargetId = null, deleteTargetSource = null;
+    let momBarChart = null, categoryPieChart = null, trendLineChart = null;
+
+    function saveExpensesCache() {
+      try {
+        localStorage.setItem(EXPENSES_CACHE_KEY, JSON.stringify({
+          savedAt: Date.now(),
+          expenses: expenses
+        }));
+      } catch (e) { /* quota / private mode */ }
+    }
+
+    function loadExpensesCache() {
+      try {
+        const raw = localStorage.getItem(EXPENSES_CACHE_KEY);
+        if (!raw) return false;
+        const parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.expenses) || !parsed.expenses.length) return false;
+        expenses = parsed.expenses;
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    const CATEGORY_COLORS = {
+      Food: '#0ea5e9', Transport: '#8b5cf6', Shopping: '#f59e0b',
+      Entertainment: '#ec4899', Utilities: '#14b8a6', Health: '#ef4444',
+      Travel: '#6366f1', Subscriptions: '#a855f7',
+      "Alex's expense": '#f97316', "Juno's expense": '#06b6d4', Other: '#64748b'
+    };
+
+    function setStatus(state, message) {
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      const box = document.getElementById('connectionStatus');
+      dot.className = 'status-dot ' + state;
+      text.textContent = message;
+      if (state === 'online') box.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-sm font-medium';
+      else if (state === 'error') box.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 text-sm font-medium';
+      else box.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-sm font-medium';
+    }
+
+    function loadConfig() {
+      // Always use hardcoded config so no prompt is needed
+      firebaseConfig = HARDCODED_CONFIG;
+      return true;
+    }
+    function saveConfig(config) {
+      // Allow override via Config modal (stored in localStorage + memory)
+      localStorage.setItem(CONFIG_KEY, JSON.stringify({ config }));
+      firebaseConfig = config;
+    }
+
+    function openConfigModal() {
+      if (firebaseConfig) {
+        document.getElementById('cfgApiKey').value = firebaseConfig.apiKey || '';
+        document.getElementById('cfgAuthDomain').value = firebaseConfig.authDomain || '';
+        document.getElementById('cfgProjectId').value = firebaseConfig.projectId || '';
+        document.getElementById('cfgStorageBucket').value = firebaseConfig.storageBucket || '';
+      }
+      document.getElementById('configModal').classList.remove('hidden');
+      document.getElementById('configModal').classList.add('flex');
+    }
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.add('hidden');
+      document.getElementById('configModal').classList.remove('flex');
+    }
+
+    function initFirebase() {
+      if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.projectId) {
+        setStatus('offline', 'Not configured');
+        hideLoading();
+        openConfigModal();
+        return;
+      }
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        db = firebase.firestore();
+        // Local cache — faster reopen on phone
+        db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+
+        let triedAnon = false;
+        auth.onAuthStateChanged(async (user) => {
+          if (user) {
+            // Resume from background: keep existing data, soft-refresh
+            if (expenses.length) {
+              loadAllExpenses({ silent: true });
+            } else {
+              setStatus('offline', 'Loading…');
+              loadAllExpenses();
+            }
+            return;
+          }
+          if (triedAnon) {
+            setStatus('error', 'Auth failed');
+            hideLoading();
+            return;
+          }
+          triedAnon = true;
+          try {
+            setStatus('offline', 'Connecting…');
+            await auth.signInAnonymously();
+          } catch (err) {
+            console.error('Anonymous sign-in failed:', err);
+            setStatus('error', err.code || 'Auth error');
+            hideLoading();
+            let msg = err.message || String(err);
+            if (err.code === 'auth/operation-not-allowed') {
+              msg = 'Enable Anonymous in Firebase Console:\nAuthentication → Sign-in method → Anonymous → Enable';
+            } else if (err.code === 'auth/unauthorized-domain') {
+              msg = 'Add this domain under Authentication → Settings → Authorized domains\n(e.g. localhost or yourusername.github.io)';
+            } else if (location.protocol === 'file:') {
+              msg = 'Open via http:// not file://\n\npython3 -m http.server 8080\nthen http://localhost:8080/expense-dashboard.html';
+            } else if (err.code === 'auth/api-key-not-valid' || (err.message || '').includes('api-key-not-valid')) {
+              msg = 'Invalid API key. Click ⚙️ Config and paste the exact apiKey from Firebase Project settings.';
+            }
+            alert(msg);
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        setStatus('error', 'Init failed');
+        hideLoading();
+        alert('Firebase init error: ' + err.message);
+      }
+    }
+
+    function monthDocId(ym) {
+      return 'expenses:' + ym;
+    }
+
+    function parseLegacyValue(monthId, data) {
+      const list = [];
+      if (!data || !data.value || typeof data.value !== 'string') return list;
+      try {
+        const arr = JSON.parse(data.value);
+        if (!Array.isArray(arr)) return list;
+        arr.forEach(item => {
+          list.push({
+            id: String(item.id || Math.random().toString(36).slice(2)),
+            amount: Number(item.amount) || 0,
+            merchant: item.desc || item.merchant || item.name || '',
+            category: normalizeCategory(item.category),
+            date: normalizeDate(item.date),
+            notes: '',
+            source: 'legacy',
+            monthDocId: monthId
+          });
+        });
+      } catch (e) {
+        console.warn('Failed to parse value JSON for', monthId, e);
+      }
+      return list;
+    }
+
+    async function fetchEntriesForMonth(monthId) {
+      const list = [];
+      try {
+        const entriesSnap = await db.collection('ledger').doc(monthId).collection('entries').get();
+        entriesSnap.docs.forEach(edoc => {
+          const d = edoc.data();
+          list.push({
+            id: edoc.id,
+            amount: Number(d.amount) || 0,
+            merchant: d.desc || d.merchant || d.name || '',
+            category: normalizeCategory(d.category),
+            date: normalizeDate(d.date),
+            notes: d.notes || '',
+            source: 'entries',
+            monthDocId: monthId
+          });
+        });
+      } catch (e) { /* ignore */ }
+      return list;
+    }
+
+    function dedupeExpenses(list) {
+      const seen = new Set();
+      return list.filter(e => {
+        const key = e.id + '|' + e.date + '|' + e.amount;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      }).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    }
+
+    async function loadAllExpenses(opts) {
+      if (!db) return;
+      const silent = opts && opts.silent;
+      const forceFull = opts && opts.full;
+
+      // Background resume: only re-fetch current month (1 request). History stays in memory.
+      const quickOnly = silent && expenses.length && !forceFull;
+
+      if (!silent) {
+        setStatus('offline', 'Loading…');
+        document.getElementById('loadingState').classList.remove('hidden');
+      }
+
+      try {
+        const cur = currentMonth();
+        const curId = monthDocId(cur);
+
+        if (quickOnly) {
+          const currentList = await fetchEntriesForMonth(curId);
+          const older = expenses.filter(e => monthKey(e.date) !== cur);
+          expenses = applyCategoryInference(dedupeExpenses([...older, ...currentList]));
+          saveExpensesCache();
+          setStatus('online', 'Connected');
+          hideLoading();
+          refreshUI();
+          return;
+        }
+
+        // Full load — current month first for fast first paint
+        const currentList = await fetchEntriesForMonth(curId);
+        if (!silent || !expenses.length) {
+          expenses = dedupeExpenses(currentList);
+          if (expenses.length) {
+            setStatus('online', 'Connected');
+            hideLoading();
+            refreshUI();
+          }
+        }
+
+        const ledgerSnap = await db.collection('ledger').get();
+        const legacyLists = [];
+        const monthIds = new Set([curId, monthDocId(prevMonth(cur))]);
+
+        ledgerSnap.docs.forEach(doc => {
+          if (!doc.id.startsWith('expenses:')) return;
+          monthIds.add(doc.id);
+          legacyLists.push(...parseLegacyValue(doc.id, doc.data()));
+        });
+
+        const otherIds = [...monthIds].filter(id => id !== curId);
+        const otherLists = await Promise.all(otherIds.map(id => fetchEntriesForMonth(id)));
+
+        expenses = applyCategoryInference(dedupeExpenses([...currentList, ...legacyLists, ...otherLists.flat()]));
+        saveExpensesCache();
+
+        setStatus('online', 'Connected');
+        hideLoading();
+        refreshUI();
+      } catch (err) {
+        console.error(err);
+        if (expenses.length) {
+          setStatus('online', 'Connected');
+          hideLoading();
+          return;
+        }
+        setStatus('error', err.code === 'permission-denied' ? 'Permission denied' : 'Load failed');
+        hideLoading();
+        if (err.code === 'permission-denied') {
+          alert('Permission denied. Make sure you are signed in and rules allow read on ledger and entries.');
+        } else {
+          alert('Failed to load: ' + err.message);
+        }
+      }
+    }
+
+    function normalizeCategory(c) {
+      if (!c) return 'Other';
+      const s = String(c).trim();
+      if (/food|dining|restaurant/i.test(s)) return 'Food';
+      if (/transport|uber|gas|fuel|shell/i.test(s)) return 'Transport';
+      if (/shop|amazon|target/i.test(s)) return 'Shopping';
+      if (/entertain|movie|netflix|spotify/i.test(s) && !/subscription/i.test(s)) return 'Entertainment';
+      if (/subscription/i.test(s)) return 'Subscriptions';
+      if (/utilit|electric|internet|water/i.test(s)) return 'Utilities';
+      if (/health|pharma|doctor/i.test(s)) return 'Health';
+      if (/travel|flight|hotel/i.test(s)) return 'Travel';
+      if (/alex/i.test(s)) return "Alex's expense";
+      if (/juno/i.test(s)) return "Juno's expense";
+      const known = ['Food','Transport','Shopping','Entertainment','Utilities','Health','Travel','Subscriptions',"Alex's expense","Juno's expense",'Other'];
+      if (known.includes(s)) return s;
+      return s || 'Other';
+    }
+
+    const CATEGORY_LOCK_KEY = 'expense_category_other_locks_v1';
+    const MERCHANT_CAT_MAP_KEY = 'expense_merchant_category_map_v1';
+
+    function getCategoryLocks() {
+      try { return JSON.parse(localStorage.getItem(CATEGORY_LOCK_KEY) || '{}') || {}; }
+      catch (e) { return {}; }
+    }
+    function setCategoryLocked(id, locked) {
+      const locks = getCategoryLocks();
+      if (locked) locks[String(id)] = true;
+      else delete locks[String(id)];
+      try { localStorage.setItem(CATEGORY_LOCK_KEY, JSON.stringify(locks)); } catch (e) {}
+    }
+    function isCategoryLocked(id) {
+      return !!getCategoryLocks()[String(id)];
+    }
+    function merchantKey(name) {
+      return String(name || '').trim().toLowerCase();
+    }
+
+    function loadMerchantCategoryMap() {
+      try { return JSON.parse(localStorage.getItem(MERCHANT_CAT_MAP_KEY) || '{}') || {}; }
+      catch (e) { return {}; }
+    }
+    function saveMerchantCategoryMap(map) {
+      try { localStorage.setItem(MERCHANT_CAT_MAP_KEY, JSON.stringify(map)); } catch (e) {}
+    }
+    function rememberMerchantCategory(merchant, category) {
+      const key = merchantKey(merchant);
+      if (!key || !category || category === 'Other') return;
+      const map = loadMerchantCategoryMap();
+      map[key] = category;
+      saveMerchantCategoryMap(map);
+    }
+
+    // Only current + previous month when learning from history
+    function recentHistorySlice(list) {
+      const cur = currentMonth();
+      const prev = prevMonth(cur);
+      return list.filter(e => {
+        const m = monthKey(e.date);
+        return m === cur || m === prev;
+      });
+    }
+
+    // Prefer local master map, else most common category in current+last month
+    function inferCategoryFromHistory(merchant, list, excludeId) {
+      const key = merchantKey(merchant);
+      if (!key) return null;
+
+      const map = loadMerchantCategoryMap();
+      if (map[key] && map[key] !== 'Other') return map[key];
+
+      const counts = {};
+      recentHistorySlice(list).forEach(e => {
+        if (excludeId && String(e.id) === String(excludeId)) return;
+        if (merchantKey(e.merchant) !== key) return;
+        const cat = e.category || 'Other';
+        if (cat === 'Other') return;
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
+      const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      if (!ranked.length) return null;
+      rememberMerchantCategory(merchant, ranked[0][0]);
+      return ranked[0][0];
+    }
+
+    // Remap Other → learned category; skip user-locked "Other" overrides
+    function applyCategoryInference(list) {
+      const remapped = [];
+      recentHistorySlice(list).forEach(e => {
+        if (e.category && e.category !== 'Other') rememberMerchantCategory(e.merchant, e.category);
+      });
+
+      list.forEach(e => {
+        if ((e.category || 'Other') !== 'Other') return;
+        if (isCategoryLocked(e.id)) return;
+        const inferred = inferCategoryFromHistory(e.merchant, list, e.id);
+        if (!inferred || inferred === 'Other') return;
+        e.category = inferred;
+        remapped.push(e);
+      });
+      if (db && remapped.length) {
+        remapped.forEach(e => {
+          if (e.source !== 'entries' || !e.monthDocId || !e.id) return;
+          db.collection('ledger').doc(e.monthDocId).collection('entries').doc(e.id)
+            .update({ category: e.category })
+            .catch(() => {});
+        });
+      }
+      return list;
+    }
+
+    function normalizeDate(val) {
+      if (!val) return '';
+      if (typeof val === 'string') return val.slice(0, 10);
+      if (val.toDate) return val.toDate().toISOString().slice(0, 10);
+      if (val.seconds) return new Date(val.seconds * 1000).toISOString().slice(0, 10);
+      return String(val).slice(0, 10);
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingState').classList.add('hidden');
+    }
+
+    async function addExpense(data) {
+      if (!db) { alert('Not connected to Firebase.'); return; }
+      const date = data.date;
+      const ym = date.slice(0, 7);
+      const monthId = monthDocId(ym);
+
+      const payload = {
+        amount: parseFloat(data.amount),
+        desc: data.merchant.trim(),
+        category: data.category,
+        date: date,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        document.getElementById('btnSubmit').disabled = true;
+        await db.collection('ledger').doc(monthId).set(
+          { updatedAt: firebase.firestore.FieldValue.serverTimestamp() },
+          { merge: true }
+        );
+        const ref = await db.collection('ledger').doc(monthId).collection('entries').add(payload);
+        // Manual add with Other = intentional; otherwise teach the map
+        if (data.category === 'Other') setCategoryLocked(ref.id, true);
+        else rememberMerchantCategory(data.merchant, data.category);
+        resetForm();
+        await loadAllExpenses();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to add: ' + err.message);
+      } finally {
+        document.getElementById('btnSubmit').disabled = false;
+      }
+    }
+
+    async function updateExpense(id, source, monthDocId, data) {
+      if (!db) return;
+      try {
+        document.getElementById('btnSubmit').disabled = true;
+        // User chose Other on purpose → lock so auto-map won't override
+        if (data.category === 'Other') setCategoryLocked(id, true);
+        else {
+          setCategoryLocked(id, false);
+          rememberMerchantCategory(data.merchant, data.category);
+        }
+        if (source === 'entries') {
+          await db.collection('ledger').doc(monthDocId).collection('entries').doc(id).update({
+            amount: parseFloat(data.amount),
+            desc: data.merchant.trim(),
+            category: data.category,
+            date: data.date
+          });
+        } else if (source === 'legacy') {
+          const docRef = db.collection('ledger').doc(monthDocId);
+          const snap = await docRef.get();
+          if (!snap.exists) throw new Error('Month document not found');
+          let arr = [];
+          try { arr = JSON.parse(snap.data().value || '[]'); } catch (e) { arr = []; }
+          const idx = arr.findIndex(x => String(x.id) === String(id));
+          if (idx === -1) throw new Error('Entry not found in legacy array');
+          arr[idx] = {
+            ...arr[idx],
+            amount: parseFloat(data.amount),
+            desc: data.merchant.trim(),
+            category: data.category,
+            date: data.date
+          };
+          await docRef.update({ value: JSON.stringify(arr) });
+        }
+        resetForm();
+        await loadAllExpenses();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to update: ' + err.message);
+      } finally {
+        document.getElementById('btnSubmit').disabled = false;
+      }
+    }
+
+    async function deleteExpense(id, source, monthDocId) {
+      if (!db) return;
+      try {
+        if (source === 'entries') {
+          await db.collection('ledger').doc(monthDocId).collection('entries').doc(id).delete();
+        } else if (source === 'legacy') {
+          const docRef = db.collection('ledger').doc(monthDocId);
+          const snap = await docRef.get();
+          if (!snap.exists) throw new Error('Month document not found');
+          let arr = [];
+          try { arr = JSON.parse(snap.data().value || '[]'); } catch (e) { arr = []; }
+          arr = arr.filter(x => String(x.id) !== String(id));
+          await docRef.update({ value: JSON.stringify(arr) });
+        }
+        await loadAllExpenses();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to delete: ' + err.message);
+      }
+    }
+
+    function formatMoney(n) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);
+    }
+    function formatDate(iso) {
+      if (!iso) return '—';
+      const [y, m, d] = iso.split('-');
+      return m + '/' + d + '/' + y;
+    }
+    function monthKey(iso) { return iso ? iso.slice(0, 7) : ''; }
+    function getMonthLabel(ym) {
+      if (!ym) return '—';
+      const [y, m] = ym.split('-');
+      const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return names[parseInt(m, 10) - 1] + ' ' + y;
+    }
+    function todayISO() { return new Date().toISOString().slice(0, 10); }
+    function currentMonth() { return todayISO().slice(0, 7); }
+    function prevMonth(ym) {
+      const [y, m] = ym.split('-').map(Number);
+      const d = new Date(y, m - 2, 1);
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    }
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    function hexToRgba(hex, alpha) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+
+    let monthFilterReady = false;
+    function populateMonthFilter() {
+      const sel = document.getElementById('filterMonth');
+      const prev = sel.value;
+      const months = [...new Set(expenses.map(e => monthKey(e.date)).filter(Boolean))].sort().reverse();
+      const cur = currentMonth();
+      sel.innerHTML = '<option value="">All months</option>' +
+        months.map(m => '<option value="' + m + '">' + getMonthLabel(m) + '</option>').join('');
+      if (!monthFilterReady) {
+        // First load: default to current month (or latest available)
+        sel.value = months.includes(cur) ? cur : (months[0] || '');
+        monthFilterReady = true;
+      } else if (prev === '' || months.includes(prev)) {
+        sel.value = prev; // keep user choice, including "All months"
+      } else {
+        sel.value = months.includes(cur) ? cur : (months[0] || '');
+      }
+    }
+
+    function getFilteredExpenses() {
+      const cat = document.getElementById('filterCategory').value;
+      const month = document.getElementById('filterMonth').value;
+      const q = (document.getElementById('filterSearch').value || '').trim().toLowerCase();
+      const sortBy = document.getElementById('sortBy').value || 'date-desc';
+      const list = expenses.filter(e => {
+        if (cat && e.category !== cat) return false;
+        if (month && monthKey(e.date) !== month) return false;
+        if (q && !(e.merchant || '').toLowerCase().includes(q) && !(e.notes || '').toLowerCase().includes(q)) return false;
+        return true;
+      });
+      list.sort((a, b) => {
+        if (sortBy === 'amount-asc') return (a.amount || 0) - (b.amount || 0);
+        if (sortBy === 'amount-desc') return (b.amount || 0) - (a.amount || 0);
+        if (sortBy === 'date-asc') return (a.date || '').localeCompare(b.date || '');
+        // date-desc (default)
+        return (b.date || '').localeCompare(a.date || '');
+      });
+      return list;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('expenseTableBody');
+      const empty = document.getElementById('emptyState');
+      const list = getFilteredExpenses();
+      if (list.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      tbody.innerHTML = list.map(e => `
+        <tr class="hover:bg-slate-50/80 transition-colors fade-in group">
+          <td class="px-5 py-3.5 text-slate-600 whitespace-nowrap">${formatDate(e.date)}</td>
+          <td class="px-5 py-3.5">
+            <div class="font-medium text-slate-900">${escapeHtml(e.merchant)}</div>
+          </td>
+          <td class="px-5 py-3.5">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+              style="background:${hexToRgba(CATEGORY_COLORS[e.category] || '#64748b', 0.12)}; color:${CATEGORY_COLORS[e.category] || '#64748b'}">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:${CATEGORY_COLORS[e.category] || '#64748b'}"></span>
+              ${escapeHtml(e.category)}
+            </span>
+          </td>
+          <td class="px-5 py-3.5 text-right font-semibold text-slate-900 whitespace-nowrap">${formatMoney(e.amount)}</td>
+          <td class="px-5 py-3.5">
+            <div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100">
+              <button onclick="startEdit('${e.id}','${e.source}','${e.monthDocId}')" class="p-1.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-brand-50" title="Edit">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </button>
+              <button onclick="openDeleteModal('${e.id}','${e.source}','${e.monthDocId}')" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50" title="Delete">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderStats() {
+      const thisM = currentMonth(), lastM = prevMonth(thisM);
+      const thisMonthExpenses = expenses.filter(e => monthKey(e.date) === thisM);
+      const thisSum = thisMonthExpenses.reduce((s, e) => s + e.amount, 0);
+      const lastSum = expenses.filter(e => monthKey(e.date) === lastM).reduce((s, e) => s + e.amount, 0);
+      document.getElementById('statThisMonth').textContent = formatMoney(thisSum);
+      document.getElementById('statMonthLabel').textContent = getMonthLabel(thisM) || thisM;
+      const foodSum = thisMonthExpenses
+        .filter(e => e.category === 'Food')
+        .reduce((s, e) => s + e.amount, 0);
+      document.getElementById('statMonthFood').textContent = 'Food ' + formatMoney(foodSum);
+      const changeEl = document.getElementById('statThisMonthChange');
+      if (lastSum === 0) {
+        changeEl.textContent = thisSum > 0 ? 'No prior data' : 'vs last month';
+        changeEl.className = 'text-xs font-medium text-slate-400';
+      } else {
+        const pct = ((thisSum - lastSum) / lastSum) * 100;
+        changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '% vs last month';
+        changeEl.className = 'text-xs font-medium ' + (pct > 0 ? 'text-rose-500' : pct < 0 ? 'text-emerald-500' : 'text-slate-400');
+      }
+    }
+
+    function renderMoM() {
+      const monthA = document.getElementById('momMonthA').value;
+      const monthB = document.getElementById('momMonthB').value;
+      document.getElementById('momLabelA').textContent = getMonthLabel(monthA) || 'Month A';
+      document.getElementById('momLabelB').textContent = getMonthLabel(monthB) || 'Month B';
+      const categories = [...new Set(expenses.map(e => e.category))].sort();
+      const sumA = {}, sumB = {};
+      categories.forEach(c => { sumA[c] = 0; sumB[c] = 0; });
+      expenses.forEach(e => {
+        const mk = monthKey(e.date);
+        if (mk === monthA) sumA[e.category] = (sumA[e.category] || 0) + e.amount;
+        if (mk === monthB) sumB[e.category] = (sumB[e.category] || 0) + e.amount;
+      });
+      const activeCats = categories.filter(c => sumA[c] > 0 || sumB[c] > 0);
+      const tbody = document.getElementById('momTableBody');
+      const empty = document.getElementById('momEmpty');
+      if (!monthA || !monthB || activeCats.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        if (momBarChart) {
+          momBarChart.data.labels = [];
+          momBarChart.data.datasets[0].data = [];
+          momBarChart.data.datasets[1].data = [];
+          momBarChart.update();
+        }
+        return;
+      }
+      empty.classList.add('hidden');
+      tbody.innerHTML = activeCats.map(c => {
+        const a = sumA[c] || 0, b = sumB[c] || 0;
+        let changeHtml;
+        if (a === 0 && b === 0) changeHtml = '<span class="text-slate-400">—</span>';
+        else if (a === 0) changeHtml = '<span class="text-rose-500 font-medium">New</span>';
+        else {
+          const pct = ((b - a) / a) * 100;
+          const cls = pct > 0 ? 'text-rose-500' : pct < 0 ? 'text-emerald-500' : 'text-slate-400';
+          changeHtml = '<span class="' + cls + ' font-medium">' + (pct >= 0 ? '+' : '') + pct.toFixed(0) + '%</span>';
+        }
+        return '<tr><td class="py-3 pr-4 font-medium text-slate-800"><span class="inline-flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background:' + (CATEGORY_COLORS[c] || '#64748b') + '"></span>' + escapeHtml(c) + '</span></td><td class="py-3 pr-4 text-right text-slate-600">' + formatMoney(a) + '</td><td class="py-3 pr-4 text-right text-slate-600">' + formatMoney(b) + '</td><td class="py-3 text-right">' + changeHtml + '</td></tr>';
+      }).join('');
+      if (momBarChart) {
+        momBarChart.data.labels = activeCats;
+        momBarChart.data.datasets[0].label = getMonthLabel(monthA);
+        momBarChart.data.datasets[0].data = activeCats.map(c => sumA[c] || 0);
+        momBarChart.data.datasets[1].label = getMonthLabel(monthB);
+        momBarChart.data.datasets[1].data = activeCats.map(c => sumB[c] || 0);
+        momBarChart.update();
+      }
+    }
+
+    function initCharts() {
+      momBarChart = new Chart(document.getElementById('momBarChart').getContext('2d'), {
+        type: 'bar',
+        data: { labels: [], datasets: [
+          { label: 'Month A', data: [], backgroundColor: 'rgba(14,165,233,0.75)', borderRadius: 6, borderSkipped: false },
+          { label: 'Month B', data: [], backgroundColor: 'rgba(99,102,241,0.75)', borderRadius: 6, borderSkipped: false }
+        ]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+            tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + formatMoney(ctx.raw) } } },
+          scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.15)' }, ticks: { callback: v => '$' + v } } }
+        }
+      });
+      categoryPieChart = new Chart(document.getElementById('categoryPieChart').getContext('2d'), {
+        type: 'doughnut',
+        data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0, hoverOffset: 8 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '62%',
+          plugins: {
+            legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, boxWidth: 8 } },
+            tooltip: { callbacks: { label: ctx => {
+              const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+              const pct = total ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+              return ' ' + ctx.label + ': ' + formatMoney(ctx.raw) + ' (' + pct + '%)';
+            }}}
+          }
+        }
+      });
+      trendLineChart = new Chart(document.getElementById('trendLineChart').getContext('2d'), {
+        type: 'line',
+        data: { labels: [], datasets: [{
+          label: 'Total Spend', data: [], borderColor: '#0ea5e9', backgroundColor: 'rgba(14,165,233,0.12)',
+          fill: true, tension: 0.35, pointRadius: 4, pointBackgroundColor: '#0ea5e9', pointBorderColor: '#fff', pointBorderWidth: 2
+        }]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => formatMoney(ctx.raw) } } },
+          scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.15)' }, ticks: { callback: v => '$' + v } } }
+        }
+      });
+    }
+
+    function updateCategoryPie() {
+      const byCat = {};
+      expenses.forEach(e => { byCat[e.category] = (byCat[e.category] || 0) + e.amount; });
+      const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+      categoryPieChart.data.labels = entries.map(e => e[0]);
+      categoryPieChart.data.datasets[0].data = entries.map(e => e[1]);
+      categoryPieChart.data.datasets[0].backgroundColor = entries.map(e => CATEGORY_COLORS[e[0]] || '#64748b');
+      categoryPieChart.update();
+    }
+
+    function updateTrendLine() {
+      const now = new Date();
+      const months = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
+      }
+      trendLineChart.data.labels = months.map(getMonthLabel);
+      trendLineChart.data.datasets[0].data = months.map(m =>
+        expenses.filter(e => monthKey(e.date) === m).reduce((s, e) => s + e.amount, 0)
+      );
+      trendLineChart.update();
+    }
+
+    function resetForm() {
+      document.getElementById('expenseForm').reset();
+      document.getElementById('editId').value = '';
+      document.getElementById('editSource').value = '';
+      document.getElementById('date').value = todayISO();
+      document.getElementById('formTitle').textContent = 'Add Expense';
+      document.getElementById('btnSubmit').textContent = 'Add Expense';
+      document.getElementById('btnCancelEdit').classList.add('hidden');
+    }
+
+    function setFormExpanded(open) {
+      const form = document.getElementById('expenseForm');
+      const chevron = document.getElementById('formChevron');
+      if (open) {
+        form.classList.remove('hidden');
+        form.classList.add('block');
+        if (chevron) chevron.classList.add('rotate-180');
+      } else {
+        // On large screens form stays visible via lg:block
+        form.classList.add('hidden');
+        form.classList.remove('block');
+        if (chevron) chevron.classList.remove('rotate-180');
+      }
+    }
+
+    function startEdit(id, source, monthDocId) {
+      const e = expenses.find(x => x.id === id && x.source === source && x.monthDocId === monthDocId);
+      if (!e) return;
+      document.getElementById('editId').value = e.id;
+      document.getElementById('editSource').value = e.source + '|' + e.monthDocId;
+      document.getElementById('amount').value = e.amount;
+      document.getElementById('merchant').value = e.merchant;
+      document.getElementById('category').value = e.category;
+      document.getElementById('date').value = e.date;
+      document.getElementById('formTitle').textContent = 'Edit Expense';
+      document.getElementById('btnSubmit').textContent = 'Update Expense';
+      document.getElementById('btnCancelEdit').classList.remove('hidden');
+      setFormExpanded(true);
+      document.getElementById('amount').focus();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openDeleteModal(id, source, monthDocId) {
+      deleteTargetId = id;
+      deleteTargetSource = source + '|' + monthDocId;
+      document.getElementById('deleteHint').textContent =
+        source === 'legacy'
+          ? 'This entry is stored in a legacy JSON array and will be removed from it.'
+          : 'This removes the document from the entries subcollection.';
+      document.getElementById('deleteModal').classList.remove('hidden');
+      document.getElementById('deleteModal').classList.add('flex');
+    }
+    function closeDeleteModal() {
+      deleteTargetId = null;
+      deleteTargetSource = null;
+      document.getElementById('deleteModal').classList.add('hidden');
+      document.getElementById('deleteModal').classList.remove('flex');
+    }
+
+    function refreshUI() {
+      populateMonthFilter();
+      renderTable();
+      renderStats();
+      renderMoM();
+      updateCategoryPie();
+      updateTrendLine();
+    }
+
+    document.getElementById('expenseForm').addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const data = {
+        amount: document.getElementById('amount').value,
+        merchant: document.getElementById('merchant').value,
+        category: document.getElementById('category').value,
+        date: document.getElementById('date').value
+      };
+      const editId = document.getElementById('editId').value;
+      const editSource = document.getElementById('editSource').value;
+      if (editId && editSource) {
+        const [source, monthDocId] = editSource.split('|');
+        updateExpense(editId, source, monthDocId, data);
+      } else {
+        addExpense(data);
+      }
+    });
+    document.getElementById('btnCancelEdit').addEventListener('click', resetForm);
+    document.getElementById('filterCategory').addEventListener('change', renderTable);
+    document.getElementById('filterMonth').addEventListener('change', renderTable);
+    document.getElementById('filterSearch').addEventListener('input', renderTable);
+    document.getElementById('sortBy').addEventListener('change', renderTable);
+    document.getElementById('btnClearFilters').addEventListener('click', () => {
+      document.getElementById('filterCategory').value = '';
+      document.getElementById('filterMonth').value = '';
+      document.getElementById('filterSearch').value = '';
+      document.getElementById('sortBy').value = 'date-desc';
+      renderTable();
+    });
+    document.getElementById('momMonthA').addEventListener('change', renderMoM);
+    document.getElementById('momMonthB').addEventListener('change', renderMoM);
+    document.getElementById('btnConfirmDelete').addEventListener('click', () => {
+      if (deleteTargetId && deleteTargetSource) {
+        const [source, monthDocId] = deleteTargetSource.split('|');
+        deleteExpense(deleteTargetId, source, monthDocId);
+        closeDeleteModal();
+      }
+    });
+    document.getElementById('btnCancelDelete').addEventListener('click', closeDeleteModal);
+    document.getElementById('deleteModal').addEventListener('click', (e) => { if (e.target.id === 'deleteModal') closeDeleteModal(); });
+
+    const headerMenu = document.getElementById('headerMenu');
+    document.getElementById('btnMenu').addEventListener('click', (e) => {
+      e.stopPropagation();
+      headerMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => headerMenu.classList.add('hidden'));
+    headerMenu.addEventListener('click', (e) => e.stopPropagation());
+
+    document.getElementById('btnConfig').addEventListener('click', () => {
+      headerMenu.classList.add('hidden');
+      openConfigModal();
+    });
+    document.getElementById('btnCancelConfig').addEventListener('click', closeConfigModal);
+    document.getElementById('configModal').addEventListener('click', (e) => { if (e.target.id === 'configModal') closeConfigModal(); });
+    document.getElementById('btnSaveConfig').addEventListener('click', () => {
+      const config = {
+        apiKey: document.getElementById('cfgApiKey').value.trim(),
+        authDomain: document.getElementById('cfgAuthDomain').value.trim(),
+        projectId: document.getElementById('cfgProjectId').value.trim(),
+        storageBucket: document.getElementById('cfgStorageBucket').value.trim() || undefined
+      };
+      if (!config.apiKey || !config.projectId) { alert('apiKey and projectId are required.'); return; }
+      saveConfig(config);
+      closeConfigModal();
+      if (firebase.apps.length) {
+        db = firebase.firestore();
+        loadAllExpenses();
+      } else {
+        initFirebase();
+      }
+    });
+
+    document.getElementById('btnRefresh').addEventListener('click', () => {
+      headerMenu.classList.add('hidden');
+      if (db) loadAllExpenses({ full: true });
+      else initFirebase();
+    });
+
+    // Mobile: Add Expense collapsed by default; tap header to expand
+    let formOpen = false;
+    document.getElementById('btnToggleForm').addEventListener('click', () => {
+      if (window.matchMedia('(min-width: 1024px)').matches) return;
+      formOpen = !formOpen;
+      setFormExpanded(formOpen);
+    });
+
+    // iOS suspends the tab in background — on return, don't blank the UI
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!auth || !db) return;
+      if (auth.currentUser) {
+        if (expenses.length) loadAllExpenses({ silent: true });
+        else loadAllExpenses();
+      } else if (!expenses.length) {
+        // Auth dropped while suspended — reconnect without clearing UI if we had data
+        auth.signInAnonymously().catch(() => {});
+      }
+    });
+
+    document.getElementById('date').value = todayISO();
+    const cur = currentMonth();
+    document.getElementById('momMonthA').value = prevMonth(cur);
+    document.getElementById('momMonthB').value = cur;
+    initCharts();
+
+    // Instant paint from last session while Firebase connects
+    if (loadExpensesCache()) {
+      setStatus('offline', 'Cached · updating…');
+      hideLoading();
+      refreshUI();
+    }
+
+    if (loadConfig()) initFirebase();
+    else {
+      setStatus('offline', 'Not configured');
+      hideLoading();
+      document.getElementById('emptyState').classList.remove('hidden');
+      setTimeout(openConfigModal, 400);
+    }
+
+    window.startEdit = startEdit;
+    window.openDeleteModal = openDeleteModal;
+  </script>
 </body>
 </html>
