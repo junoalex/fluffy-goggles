@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>iPhone Duo Multi-Alert Stock Checker</title>
+  <meta name="description" content="Watch multiple iPhone Duo configs and get notified when any become available for Apple Store pickup" />
+  <meta name="theme-color" content="#1c1c1e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --card: #1c1c1e;
+      --card-hover: #2c2c2e;
+      --text: #f5f5f7;
+      --text-secondary: #a1a1a6;
+      --accent: #0a84ff;
+      --green: #30d158;
+      --orange: #ff9f0a;
+      --red: #ff453a;
+      --border: #38383a;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 20px 16px 48px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: 520px; margin: 0 auto; }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .card h2 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      margin-bottom: 5px;
+      color: var(--text-secondary);
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      padding: 11px 13px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: #2c2c2e;
+      color: var(--text);
+      font-size: 1rem;
+      margin-bottom: 12px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 13px 18px;
+      border-radius: 12px;
+      border: none;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { background: #0070e0; }
+    .btn-primary:disabled {
+      background: #3a3a3c;
+      color: #8e8e93;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #2c2c2e;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--card-hover); }
+
+    .btn-small {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      width: auto;
+      border-radius: 9px;
+    }
+
+    .btn-danger {
+      background: rgba(255, 69, 58, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(255, 69, 58, 0.3);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .btn-group .btn { flex: 1; }
+
+    /* Watch list */
+    .watch-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .watch-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #2c2c2e;
+      border-radius: 11px;
+      padding: 11px 13px;
+      border: 1px solid var(--border);
+    }
+
+    .watch-item .info {
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .watch-item .info span {
+      color: var(--text-secondary);
+      font-weight: 400;
+      font-size: 0.85rem;
+    }
+
+    .add-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .add-row select {
+      margin-bottom: 0;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .status-dot.live { background: var(--green); }
+    .status-dot.stale { background: var(--orange); }
+    .status-dot.error { background: var(--red); }
+
+    .results {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .store {
+      background: #2c2c2e;
+      border-radius: 13px;
+      padding: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .store.available {
+      border-color: var(--green);
+      background: rgba(48, 209, 88, 0.07);
+    }
+
+    .store-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .store-name { font-weight: 600; font-size: 1.02rem; }
+    .distance { font-size: 0.84rem; color: var(--text-secondary); white-space: nowrap; }
+
+    .store-address {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .products {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .product-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      border-radius: 8px;
+      font-size: 0.83rem;
+      font-weight: 500;
+      background: #3a3a3c;
+    }
+
+    .product-tag.available {
+      background: rgba(48, 209, 88, 0.18);
+      color: var(--green);
+    }
+
+    .product-tag.unavailable {
+      color: var(--text-secondary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px 14px;
+      color: var(--text-secondary);
+    }
+    .empty-state strong {
+      color: var(--text);
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .notification-status {
+      font-size: 0.84rem;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 22px;
+      line-height: 1.45;
+    }
+    .footer-note a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .tip {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      background: rgba(10, 132, 255, 0.08);
+      border: 1px solid rgba(10, 132, 255, 0.2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 420px) {
+      .row, .add-row {
+        grid-template-columns: 1fr;
+      }
+      .add-row .btn-small {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>iPhone Duo Multi-Alert</h1>
+      <p>Watch multiple configs · get notified when any appear</p>
+    </header>
+
+    <!-- Watch List -->
+    <div class="card">
+      <h2>Watch List</h2>
+      <div class="watch-list" id="watchList"></div>
+
+      <div class="add-row">
+        <div>
+          <label for="addColor">Color</label>
+          <select id="addColor">
+            <option value="Night Sky" selected>Night Sky</option>
+            <option value="Star White">Star White</option>
+          </select>
+        </div>
+        <div>
+          <label for="addStorage">Storage</label>
+          <select id="addStorage">
+            <option value="256">256GB</option>
+            <option value="512">512GB</option>
+            <option value="1024" selected>1TB</option>
+            <option value="2048">2TB</option>
+          </select>
+        </div>
+        <button class="btn btn-secondary btn-small" onclick="addWatch()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- Location & Controls -->
+    <div class="card">
+      <h2>Location & Alerts</h2>
+      <label for="zip">ZIP Code</label>
+      <input type="text" id="zip" value="75034" placeholder="e.g. 75034" maxlength="10" />
+
+      <label for="intervalSelect">Auto-check interval</label>
+      <select id="intervalSelect" onchange="changeInterval()">
+        <option value="60">Every 60 seconds (aggressive)</option>
+        <option value="90">Every 90 seconds</option>
+        <option value="120">Every 2 minutes</option>
+        <option value="210" selected>Every 3.5 minutes (recommended)</option>
+        <option value="300">Every 5 minutes</option>
+      </select>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="checkBtn" onclick="checkStock()">
+          Check Now
+        </button>
+        <button class="btn btn-secondary" id="notifyBtn" onclick="toggleNotifications()">
+          Enable Alerts
+        </button>
+      </div>
+      <div class="notification-status" id="notifyStatus"></div>
+
+      <div class="tip">
+        <strong>iPhone tip:</strong> For better notifications + sound, tap Share → Add to Home Screen. Keep the app/tab open (and unlocked) while monitoring. True background push is limited by iOS.<br>
+        Use 60s only during high-chance windows — more aggressive polling increases chance of temporary rate limits.
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card">
+      <div class="status-bar">
+        <span>
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusLabel">Ready</span>
+        </span>
+        <span id="lastChecked">—</span>
+      </div>
+
+      <div id="results" class="results">
+        <div class="empty-state">
+          <strong>Ready</strong>
+          Add the configs you want, then tap Check Now.
+        </div>
+      </div>
+    </div>
+
+    <p class="footer-note">
+      Data updates ~every 20 min · always confirm on <a href="https://www.apple.com/shop/buy-iphone" target="_blank" rel="noopener">apple.com</a><br>
+      For stronger push alerts: <a href="https://iphonestockchecker.com" target="_blank" rel="noopener">iphonestockchecker.com</a> · <a href="https://instockradar.com" target="_blank" rel="noopener">instockradar.com</a>
+    </p>
+  </div>
+
+  <script>
+    const API_BASE = "https://duo-checker.on-forge.com/api/v1";
+    const WATCH_KEY = "duoWatchList";
+    const ZIP_KEY = "duoZip";
+    const NOTIFY_KEY = "duoNotify";
+    const INTERVAL_KEY = "duoInterval";
+
+    // Default watch list: Night Sky 1TB + 2TB
+    let watchList = [
+      { color: "Night Sky", storage: "1024" },
+      { color: "Night Sky", storage: "2048" }
+    ];
+
+    let notificationsEnabled = false;
+    let lastAvailableIds = new Set();
+    let autoRefreshTimer = null;
+    let audioCtx = null;
+    let currentIntervalSec = 210; // default 3.5 min
+
+    // Unlock Web Audio on first user interaction (required on iOS)
+    function unlockAudio() {
+      if (audioCtx) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Create a silent buffer to fully unlock
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+      } catch (e) {}
+    }
+
+    // Call unlock on any user interaction
+    document.addEventListener("click", unlockAudio, { once: true, passive: true });
+    document.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
+
+    function storageLabel(gb) {
+      if (gb === "1024" || gb === 1024) return "1TB";
+      if (gb === "2048" || gb === 2048) return "2TB";
+      return gb + "GB";
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(WATCH_KEY);
+        if (saved) watchList = JSON.parse(saved);
+      } catch (e) {}
+
+      const savedZip = localStorage.getItem(ZIP_KEY);
+      if (savedZip) document.getElementById("zip").value = savedZip;
+
+      // Restore interval preference
+      const savedInterval = localStorage.getItem(INTERVAL_KEY);
+      if (savedInterval) {
+        currentIntervalSec = parseInt(savedInterval, 10) || 210;
+        const sel = document.getElementById("intervalSelect");
+        if (sel) sel.value = String(currentIntervalSec);
+      }
+
+      notificationsEnabled = localStorage.getItem(NOTIFY_KEY) === "1";
+      updateNotifyUI();
+      renderWatchList();
+    }
+
+    function saveWatchList() {
+      localStorage.setItem(WATCH_KEY, JSON.stringify(watchList));
+    }
+
+    function saveZip() {
+      localStorage.setItem(ZIP_KEY, document.getElementById("zip").value.trim());
+    }
+
+    function renderWatchList() {
+      const el = document.getElementById("watchList");
+      if (watchList.length === 0) {
+        el.innerHTML = `<div class="empty-state" style="padding:16px"><strong>No configs yet</strong>Add at least one below</div>`;
+        return;
+      }
+      el.innerHTML = watchList.map((item, idx) => `
+        <div class="watch-item">
+          <div class="info">
+            ${item.color} · ${storageLabel(item.storage)}
+            <span> · watching</span>
+          </div>
+          <button class="btn btn-danger btn-small" onclick="removeWatch(${idx})">Remove</button>
+        </div>
+      `).join("");
+    }
+
+    function addWatch() {
+      const color = document.getElementById("addColor").value;
+      const storage = document.getElementById("addStorage").value;
+
+      // Prevent duplicates
+      const exists = watchList.some(w => w.color === color && w.storage === storage);
+      if (exists) {
+        alert("That combination is already in your watch list.");
+        return;
+      }
+
+      watchList.push({ color, storage });
+      saveWatchList();
+      renderWatchList();
+    }
+
+    function removeWatch(idx) {
+      watchList.splice(idx, 1);
+      saveWatchList();
+      renderWatchList();
+    }
+
+    // ===== Notifications =====
+    function updateNotifyUI() {
+      const btn = document.getElementById("notifyBtn");
+      const status = document.getElementById("notifyStatus");
+      if (notificationsEnabled) {
+        btn.textContent = "Alerts On ✓";
+        btn.style.borderColor = "var(--green)";
+        status.textContent = "Browser alerts enabled (keep tab/app open)";
+        status.style.color = "var(--green)";
+      } else {
+        btn.textContent = "Enable Alerts";
+        btn.style.borderColor = "";
+        status.textContent = "";
+      }
+    }
+
+    async function toggleNotifications() {
+      if (!("Notification" in window)) {
+        alert("This browser does not support notifications.");
+        return;
+      }
+      if (Notification.permission === "denied") {
+        alert("Notifications are blocked. Please enable them in Settings → Safari → Notifications (or the site settings).");
+        return;
+      }
+      if (Notification.permission !== "granted") {
+        const perm = await Notification.requestPermission();
+        if (perm !== "granted") {
+          alert("Permission denied.");
+          return;
+        }
+      }
+      notificationsEnabled = !notificationsEnabled;
+      localStorage.setItem(NOTIFY_KEY, notificationsEnabled ? "1" : "0");
+      updateNotifyUI();
+
+      if (notificationsEnabled) {
+        playAlertSound();   // let the user hear the alert sound right away
+        new Notification("iPhone Duo Multi-Alert", {
+          body: "You'll be notified when any watched config appears nearby. Keep this page open.",
+          icon: "https://www.apple.com/favicon.ico"
+        });
+      }
+    }
+
+    // Play a short, attention-grabbing alert sound
+    function playAlertSound() {
+      try {
+        // Prefer the already-unlocked context (important on iOS)
+        const ctx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === "suspended") ctx.resume();
+
+        const now = ctx.currentTime;
+
+        // Two-tone chime (pleasant but hard to miss)
+        const notes = [
+          { freq: 880, start: 0.00, dur: 0.18 },   // A5
+          { freq: 1174.66, start: 0.16, dur: 0.28 } // D6
+        ];
+
+        notes.forEach(n => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = n.freq;
+          gain.gain.setValueAtTime(0.0001, now + n.start);
+          gain.gain.exponentialRampToValueAtTime(0.35, now + n.start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + n.start + n.dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + n.start);
+          osc.stop(now + n.start + n.dur + 0.05);
+        });
+      } catch (e) {
+        // Silent fail – notification will still appear
+      }
+    }
+
+    function sendNotification(title, body) {
+      if (!notificationsEnabled || Notification.permission !== "granted") return;
+      try {
+        // Play sound first so it works even if the notification is suppressed
+        playAlertSound();
+
+        new Notification(title, {
+          body,
+          icon: "https://www.apple.com/favicon.ico",
+          tag: "duo-stock-" + Date.now(),
+          requireInteraction: true   // keeps notification visible longer on supported browsers
+        });
+      } catch (e) {}
+    }
+
+    // ===== Check =====
+    async function checkStock(isAuto = false) {
+      const zip = document.getElementById("zip").value.trim();
+      if (!zip || zip.length < 5) {
+        alert("Please enter a valid ZIP code.");
+        return;
+      }
+      if (watchList.length === 0) {
+        alert("Add at least one config to your watch list.");
+        return;
+      }
+
+      saveZip();
+
+      const btn = document.getElementById("checkBtn");
+      const resultsEl = document.getElementById("results");
+      const statusDot = document.getElementById("statusDot");
+      const statusLabel = document.getElementById("statusLabel");
+      const lastChecked = document.getElementById("lastChecked");
+
+      if (!isAuto) {
+        btn.disabled = true;
+        btn.textContent = "Checking…";
+      }
+
+      statusDot.className = "status-dot";
+      statusLabel.textContent = "Checking…";
+
+      try {
+        // Single efficient call – no color/storage filter so we get all configs
+        const url = `${API_BASE}/nearby?zip=${encodeURIComponent(zip)}&available_only=0&limit=15`;
+        const res = await fetch(url, { headers: { "Accept": "application/json" } });
+
+        if (res.status === 429) throw new Error("Rate limited – wait ~1 minute");
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+
+        const data = await res.json();
+
+        const isStale = data.is_stale;
+        statusDot.className = "status-dot " + (isStale ? "stale" : "live");
+        statusLabel.textContent = isStale ? "Data may be stale" : "Live data";
+
+        const finished = data.run_finished_at ? new Date(data.run_finished_at) : null;
+        lastChecked.textContent = finished
+          ? "Updated " + finished.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+          : "";
+
+        renderResults(data);
+
+        // Notification check
+        if (notificationsEnabled) {
+          const availableNow = new Set();
+          (data.stores || []).forEach(store => {
+            (store.products || []).forEach(p => {
+              if (p.pickup_status === "available") {
+                const key = `${store.store_id}|${p.color}|${p.storage_gb}`;
+                // Only care about watched configs
+                const isWatched = watchList.some(w =>
+                  w.color === p.color && String(w.storage) === String(p.storage_gb)
+                );
+                if (isWatched) {
+                  availableNow.add(key);
+                  if (!lastAvailableIds.has(key)) {
+                    sendNotification(
+                      "iPhone Duo Available!",
+                      `${p.color} ${storageLabel(p.storage_gb)} at ${store.name} (${store.distance_miles?.toFixed(1)} mi)`
+                    );
+                  }
+                }
+              }
+            });
+          });
+          lastAvailableIds = availableNow;
+        }
+
+      } catch (err) {
+        statusDot.className = "status-dot error";
+        statusLabel.textContent = "Error";
+        resultsEl.innerHTML = `
+          <div class="empty-state">
+            <strong>Could not fetch data</strong>
+            ${escapeHtml(err.message)}<br><br>
+            Try again in a minute.
+          </div>`;
+      } finally {
+        if (!isAuto) {
+          btn.disabled = false;
+          btn.textContent = "Check Now";
+        }
+      }
+    }
+
+    function renderResults(data) {
+      const resultsEl = document.getElementById("results");
+      const stores = data.stores || [];
+
+      if (stores.length === 0) {
+        resultsEl.innerHTML = `<div class="empty-state"><strong>No stores found</strong>Check the ZIP and try again.</div>`;
+        return;
+      }
+
+      // Filter products to only watched ones for cleaner UI
+      const watchedKeys = new Set(watchList.map(w => `${w.color}|${w.storage}`));
+
+      // Sort: any watched available first, then by distance
+      stores.sort((a, b) => {
+        const aAvail = (a.products || []).some(p =>
+          p.pickup_status === "available" && watchedKeys.has(`${p.color}|${p.storage_gb}`)
+        );
+        const bAvail = (b.products || []).some(p =>
+          p.pickup_status === "available" && watchedKeys.has(`${p.color}|${p.storage_gb}`)
+        );
+        if (aAvail !== bAvail) return bAvail - aAvail;
+        return (a.distance_miles || 999) - (b.distance_miles || 999);
+      });
+
+      let html = "";
+      let anyWatchedAvailable = false;
+
+      stores.forEach(store => {
+        const relevantProducts = (store.products || []).filter(p =>
+          watchedKeys.has(`${p.color}|${p.storage_gb}`)
+        );
+
+        if (relevantProducts.length === 0) return; // skip stores with zero watched configs
+
+        const hasAvailable = relevantProducts.some(p => p.pickup_status === "available");
+        if (hasAvailable) anyWatchedAvailable = true;
+
+        html += `
+          <div class="store ${hasAvailable ? "available" : ""}">
+            <div class="store-header">
+              <div class="store-name">${escapeHtml(store.name)}</div>
+              <div class="distance">${store.distance_miles != null ? store.distance_miles.toFixed(1) + " mi" : ""}</div>
+            </div>
+            <div class="store-address">
+              ${escapeHtml(store.address1 || "")}${store.city ? ", " + escapeHtml(store.city) : ""}
+            </div>
+            <div class="products">
+              ${relevantProducts.map(p => {
+                const isAvail = p.pickup_status === "available";
+                const label = `${storageLabel(p.storage_gb)} ${p.color}`;
+                const msg = isAvail ? (p.pickup_message || "Available") : "Unavailable";
+                return `<span class="product-tag ${isAvail ? "available" : "unavailable"}">${label} · ${msg}</span>`;
+              }).join("")}
+            </div>
+            ${hasAvailable ? `
+              <div style="margin-top:11px">
+                <a class="btn btn-primary" style="text-decoration:none;font-size:0.9rem;padding:10px"
+                   href="https://www.apple.com/shop/buy-iphone" target="_blank" rel="noopener">
+                  Reserve on Apple →
+                </a>
+              </div>` : ""}
+          </div>`;
+      });
+
+      if (!html) {
+        html = `<div class="empty-state"><strong>No matching stores</strong>Try a different ZIP or add more configs.</div>`;
+      } else if (!anyWatchedAvailable) {
+        html = `
+          <div class="empty-state">
+            <strong>None of your watched configs are available right now</strong>
+            Showing nearest stores that carry them. Stock appears in short bursts.
+          </div>` + html;
+      }
+
+      resultsEl.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    // Auto-refresh with selectable interval
+    function startAutoRefresh() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(() => {
+        if (document.visibilityState === "visible") {
+          checkStock(true);
+        }
+      }, currentIntervalSec * 1000);
+    }
+
+    function changeInterval() {
+      const sel = document.getElementById("intervalSelect");
+      currentIntervalSec = parseInt(sel.value, 10) || 210;
+      localStorage.setItem(INTERVAL_KEY, String(currentIntervalSec));
+      startAutoRefresh(); // restart timer with new interval immediately
+    }
+
+    // Init
+    loadState();
+    document.getElementById("zip").addEventListener("change", saveZip);
+
+    // First check after short delay
+    setTimeout(() => checkStock(), 700);
+    startAutoRefresh();
+  </script>
+</body>
+</html>
